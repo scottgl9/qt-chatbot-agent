@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+%:
+	dh $@ --buildsystem=cmake --parallel
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=/usr
+
+override_dh_auto_test:
+	# Run tests during build
+	cd obj-* && ctest --output-on-failure || true
+
+override_dh_install:
+	dh_install
+	# Create config directory
+	install -d debian/qt-chatbot-agent/etc/qt-chatbot

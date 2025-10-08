@@ -1,0 +1,23 @@
+qt-chatbot-agent (1.1.0-1) unstable; urgency=medium
+
+  * Modern chat interface with message bubbles
+  * Clean user/bot/system message styling
+  * Special visual widgets for tool execution
+  * Improved input area with rounded styling
+  * Better Qt HTML compatibility
+  * White background with clean aesthetics
+
+ -- Scott Glover <scottgl@gmail.com>  Tue, 08 Oct 2025 15:00:00 +0000
+
+qt-chatbot-agent (1.0.0-1) unstable; urgency=medium
+
+  * Initial release
+  * MCP tool calling support
+  * Ollama and OpenAI backends
+  * 5 built-in MCP tools
+  * Streaming responses
+  * CLI and GUI modes
+  * System prompt configuration
+  * 100% test coverage
+
+ -- Scott Glover <scottgl@gmail.com>  Tue, 08 Oct 2025 14:00:00 +0000

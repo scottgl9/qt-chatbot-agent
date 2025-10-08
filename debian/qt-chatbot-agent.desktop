@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Qt Chatbot Agent
+Comment=Modern AI chatbot agent with MCP integration
+Exec=/usr/bin/qt-chatbot-agent
+Icon=applications-chat
+Terminal=false
+Categories=Network;Chat;Utility;
+Keywords=AI;chatbot;LLM;Ollama;MCP;assistant;agent;
+StartupNotify=true

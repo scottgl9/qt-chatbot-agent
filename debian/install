@@ -1,0 +1,3 @@
+build/bin/qt-chatbot-agent usr/bin/
+docs/*.md usr/share/doc/qt-chatbot-agent/
+README.md usr/share/doc/qt-chatbot-agent/
