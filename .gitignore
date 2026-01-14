@@ -40,8 +40,10 @@ Testing/Temporary/
 
 # Debian package build files
 debian/.debhelper/
+debian/qt-chatbot-agent/
 debian/qt-chatbot/
 debian/qt-chatbot-dbgsym/
+debian/debhelper-build-stamp
 debian/files
 debian/*.log
 debian/*.substvars

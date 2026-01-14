@@ -41,10 +41,6 @@ A Qt5-based chatbot application with advanced features including:
 - Configurable context window size
 - Detailed logging of pruning actions
 
-## Screenshot
-
-![Qt Chatbot Agent Interface](images/qt-chatbot-agent.png)
-
 ## Quick Start
 
 ### Prerequisites
