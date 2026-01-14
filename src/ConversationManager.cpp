@@ -39,7 +39,7 @@ void ConversationManager::newConversation() {
     
     emit conversationChanged();
     emit modificationStateChanged(false);
-    emit messagePosted("System", "New conversation started.");
+    emit messagePosted("System", tr("New conversation started."));
     
     LOG_INFO("New conversation started");
 }
@@ -49,9 +49,9 @@ void ConversationManager::saveConversation() {
 
     if (fileName.isEmpty()) {
         fileName = QFileDialog::getSaveFileName(parentWidget,
-            "Save Conversation",
+            tr("Save Conversation"),
             QDir::homePath() + "/conversation.json",
-            "Conversation Files (*.json);;All Files (*)");
+            tr("Conversation Files (*.json);;All Files (*)"));
     }
 
     if (fileName.isEmpty()) {
@@ -60,8 +60,8 @@ void ConversationManager::saveConversation() {
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(parentWidget, "Save Failed",
-            QString("Could not open file for writing: %1").arg(fileName));
+        QMessageBox::warning(parentWidget, tr("Save Failed"),
+            tr("Could not open file for writing: %1").arg(fileName));
         LOG_ERROR(QString("Failed to save conversation: %1").arg(fileName));
         return;
     }
@@ -90,7 +90,7 @@ void ConversationManager::saveConversation() {
     
     emit conversationChanged();
     emit modificationStateChanged(false);
-    emit messagePosted("System", QString("Conversation saved to: %1").arg(fileName));
+    emit messagePosted("System", tr("Conversation saved to: %1").arg(fileName));
     
     LOG_INFO(QString("Conversation saved to: %1").arg(fileName));
 }
@@ -101,9 +101,9 @@ void ConversationManager::loadConversation() {
     }
 
     QString fileName = QFileDialog::getOpenFileName(parentWidget,
-        "Load Conversation",
+        tr("Load Conversation"),
         QDir::homePath(),
-        "Conversation Files (*.json);;All Files (*)");
+        tr("Conversation Files (*.json);;All Files (*)"));
 
     if (fileName.isEmpty()) {
         return;
@@ -111,8 +111,8 @@ void ConversationManager::loadConversation() {
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(parentWidget, "Load Failed",
-            QString("Could not open file for reading: %1").arg(fileName));
+        QMessageBox::warning(parentWidget, tr("Load Failed"),
+            tr("Could not open file for reading: %1").arg(fileName));
         LOG_ERROR(QString("Failed to load conversation: %1").arg(fileName));
         return;
     }
@@ -124,8 +124,8 @@ void ConversationManager::loadConversation() {
     QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
 
     if (parseError.error != QJsonParseError::NoError) {
-        QMessageBox::warning(parentWidget, "Load Failed",
-            QString("Invalid conversation file format: %1").arg(parseError.errorString()));
+        QMessageBox::warning(parentWidget, tr("Load Failed"),
+            tr("Invalid conversation file format: %1").arg(parseError.errorString()));
         LOG_ERROR(QString("Failed to parse conversation file: %1").arg(parseError.errorString()));
         return;
     }
@@ -150,7 +150,7 @@ void ConversationManager::loadConversation() {
     emit modificationStateChanged(false);
 
     // Show metadata
-    QString metadata = QString("Loaded conversation from %1\nModel: %2 | Backend: %3 | Saved: %4")
+    QString metadata = tr("Loaded conversation from %1\nModel: %2 | Backend: %3 | Saved: %4")
         .arg(QFileInfo(fileName).fileName())
         .arg(conversation["model"].toString())
         .arg(conversation["backend"].toString())
@@ -163,9 +163,9 @@ void ConversationManager::loadConversation() {
 
 void ConversationManager::exportConversation() {
     QString fileName = QFileDialog::getSaveFileName(parentWidget,
-        "Export Conversation",
+        tr("Export Conversation"),
         QDir::homePath() + "/conversation.txt",
-        "Text Files (*.txt);;Markdown Files (*.md);;All Files (*)");
+        tr("Text Files (*.txt);;Markdown Files (*.md);;All Files (*)"));
 
     if (fileName.isEmpty()) {
         return;
@@ -173,8 +173,8 @@ void ConversationManager::exportConversation() {
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(parentWidget, "Export Failed",
-            QString("Could not open file for writing: %1").arg(fileName));
+        QMessageBox::warning(parentWidget, tr("Export Failed"),
+            tr("Could not open file for writing: %1").arg(fileName));
         LOG_ERROR(QString("Failed to open file for export: %1").arg(fileName));
         return;
     }
@@ -183,10 +183,10 @@ void ConversationManager::exportConversation() {
 
     // Write header
     out << "========================================\n";
-    out << QString("%1 Conversation Export\n").arg(APP_NAME);
-    out << QString("Date: %1\n").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
-    out << QString("Model: %1\n").arg(Config::instance().getModel());
-    out << QString("Backend: %1\n").arg(Config::instance().getBackend());
+    out << tr("%1 Conversation Export\n").arg(APP_NAME);
+    out << tr("Date: %1\n").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
+    out << tr("Model: %1\n").arg(Config::instance().getModel());
+    out << tr("Backend: %1\n").arg(Config::instance().getBackend());
     out << "========================================\n\n";
 
     // Write conversation
@@ -194,7 +194,7 @@ void ConversationManager::exportConversation() {
 
     file.close();
 
-    emit messagePosted("System", QString("Conversation exported to: %1").arg(fileName));
+    emit messagePosted("System", tr("Conversation exported to: %1").arg(fileName));
     
     LOG_INFO(QString("Conversation exported to: %1").arg(fileName));
 }
@@ -218,7 +218,7 @@ bool ConversationManager::promptToSaveIfModified(const QString &operation) {
 
     QMessageBox::StandardButton reply = QMessageBox::question(parentWidget,
         operation,
-        "Current conversation has unsaved changes. Save before continuing?",
+        tr("Current conversation has unsaved changes. Save before continuing?"),
         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
 
     if (reply == QMessageBox::Cancel) {

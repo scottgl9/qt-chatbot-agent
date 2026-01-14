@@ -26,7 +26,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent)
     , networkManager(nullptr)
     , silentRefresh(false) {
-    setWindowTitle("Settings");
+    setWindowTitle(tr("Settings"));
     setMinimumWidth(500);
 
     createUI();
@@ -64,62 +64,62 @@ void SettingsDialog::createUI() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // Backend Settings Group
-    QGroupBox *backendGroup = new QGroupBox("Backend Settings", this);
+    QGroupBox *backendGroup = new QGroupBox(tr("Backend Settings"), this);
     QFormLayout *backendLayout = new QFormLayout(backendGroup);
 
     backendCombo = new QComboBox(this);
-    backendCombo->addItem("Ollama");
-    backendCombo->addItem("Lemonade");
-    backendCombo->addItem("OpenAI");
+    backendCombo->addItem(tr("Ollama"));
+    backendCombo->addItem(tr("Lemonade"));
+    backendCombo->addItem(tr("OpenAI"));
     connect(backendCombo, &QComboBox::currentTextChanged, this, &SettingsDialog::onBackendChanged);
-    backendLayout->addRow("Backend:", backendCombo);
+    backendLayout->addRow(tr("Backend:"), backendCombo);
 
     // Model selection with refresh button
     QHBoxLayout *modelLayout = new QHBoxLayout();
     modelCombo = new QComboBox(this);
     modelCombo->setEditable(true);
-    modelCombo->setPlaceholderText("Select or enter model name");
+    modelCombo->setPlaceholderText(tr("Select or enter model name"));
     modelLayout->addWidget(modelCombo, 1);
 
-    refreshModelsButton = new QPushButton("Refresh", this);
-    refreshModelsButton->setToolTip("Fetch available models from Ollama server");
+    refreshModelsButton = new QPushButton(tr("Refresh"), this);
+    refreshModelsButton->setToolTip(tr("Fetch available models from Ollama server"));
     connect(refreshModelsButton, &QPushButton::clicked, this, &SettingsDialog::refreshModels);
     modelLayout->addWidget(refreshModelsButton);
 
-    backendLayout->addRow("Model:", modelLayout);
+    backendLayout->addRow(tr("Model:"), modelLayout);
 
     apiUrlEdit = new QLineEdit(this);
     apiUrlEdit->setPlaceholderText("http://localhost:11434/api/generate");
-    backendLayout->addRow("API URL:", apiUrlEdit);
+    backendLayout->addRow(tr("API URL:"), apiUrlEdit);
 
     apiKeyEdit = new QLineEdit(this);
-    apiKeyEdit->setPlaceholderText("API Key (for OpenAI)");
+    apiKeyEdit->setPlaceholderText(tr("API Key (for OpenAI)"));
     apiKeyEdit->setEchoMode(QLineEdit::Password);
-    backendLayout->addRow("API Key:", apiKeyEdit);
+    backendLayout->addRow(tr("API Key:"), apiKeyEdit);
 
     mainLayout->addWidget(backendGroup);
 
     // System Prompt Group
-    QGroupBox *promptGroup = new QGroupBox("System Prompt", this);
+    QGroupBox *promptGroup = new QGroupBox(tr("System Prompt"), this);
     QVBoxLayout *promptLayout = new QVBoxLayout(promptGroup);
 
-    QLabel *promptLabel = new QLabel("Configure the system prompt for the LLM:", this);
+    QLabel *promptLabel = new QLabel(tr("Configure the system prompt for the LLM:"), this);
     promptLabel->setWordWrap(true);
     promptLayout->addWidget(promptLabel);
 
     systemPromptEdit = new QTextEdit(this);
-    systemPromptEdit->setPlaceholderText("Enter system prompt here...");
+    systemPromptEdit->setPlaceholderText(tr("Enter system prompt here..."));
     systemPromptEdit->setMaximumHeight(100);
-    systemPromptEdit->setToolTip("The system prompt sets the behavior and personality of the AI assistant");
+    systemPromptEdit->setToolTip(tr("The system prompt sets the behavior and personality of the AI assistant"));
     promptLayout->addWidget(systemPromptEdit);
 
     mainLayout->addWidget(promptGroup);
 
     // LLM Parameters Group
-    QGroupBox *paramsGroup = new QGroupBox("LLM Parameters", this);
+    QGroupBox *paramsGroup = new QGroupBox(tr("LLM Parameters"), this);
     QVBoxLayout *paramsGroupLayout = new QVBoxLayout(paramsGroup);
 
-    QLabel *paramsNote = new QLabel("<i>Check 'Override' to customize parameters, otherwise model defaults are used.</i>");
+    QLabel *paramsNote = new QLabel(tr("<i>Check 'Override' to customize parameters, otherwise model defaults are used.</i>"));
     paramsNote->setWordWrap(true);
     paramsGroupLayout->addWidget(paramsNote);
 
@@ -128,7 +128,7 @@ void SettingsDialog::createUI() {
 
     // Context Window
     QHBoxLayout *ctxLayout = new QHBoxLayout();
-    overrideContextWindowCheckbox = new QCheckBox("Override", this);
+    overrideContextWindowCheckbox = new QCheckBox(tr("Override"), this);
     contextWindowSpinBox = new QSpinBox(this);
     contextWindowSpinBox->setRange(512, 32768);
     contextWindowSpinBox->setSingleStep(512);
@@ -137,13 +137,13 @@ void SettingsDialog::createUI() {
     connect(overrideContextWindowCheckbox, &QCheckBox::toggled, contextWindowSpinBox, &QSpinBox::setEnabled);
     ctxLayout->addWidget(overrideContextWindowCheckbox);
     ctxLayout->addWidget(contextWindowSpinBox);
-    QLabel *ctxLabel = new QLabel("Context Window:");
-    ctxLabel->setToolTip("Maximum context size for the conversation");
+    QLabel *ctxLabel = new QLabel(tr("Context Window:"));
+    ctxLabel->setToolTip(tr("Maximum context size for the conversation"));
     paramsLayout->addRow(ctxLabel, ctxLayout);
 
     // Temperature
     QHBoxLayout *tempLayout = new QHBoxLayout();
-    overrideTemperatureCheckbox = new QCheckBox("Override", this);
+    overrideTemperatureCheckbox = new QCheckBox(tr("Override"), this);
     temperatureSpinBox = new QDoubleSpinBox(this);
     temperatureSpinBox->setRange(0.0, 2.0);
     temperatureSpinBox->setSingleStep(0.1);
@@ -152,13 +152,13 @@ void SettingsDialog::createUI() {
     connect(overrideTemperatureCheckbox, &QCheckBox::toggled, temperatureSpinBox, &QDoubleSpinBox::setEnabled);
     tempLayout->addWidget(overrideTemperatureCheckbox);
     tempLayout->addWidget(temperatureSpinBox);
-    QLabel *tempLabel = new QLabel("Temperature:");
-    tempLabel->setToolTip("Controls randomness (0.0 = focused, 1.0+ = creative)");
+    QLabel *tempLabel = new QLabel(tr("Temperature:"));
+    tempLabel->setToolTip(tr("Controls randomness (0.0 = focused, 1.0+ = creative)"));
     paramsLayout->addRow(tempLabel, tempLayout);
 
     // Top-P
     QHBoxLayout *topPLayout = new QHBoxLayout();
-    overrideTopPCheckbox = new QCheckBox("Override", this);
+    overrideTopPCheckbox = new QCheckBox(tr("Override"), this);
     topPSpinBox = new QDoubleSpinBox(this);
     topPSpinBox->setRange(0.0, 1.0);
     topPSpinBox->setSingleStep(0.05);
@@ -167,13 +167,13 @@ void SettingsDialog::createUI() {
     connect(overrideTopPCheckbox, &QCheckBox::toggled, topPSpinBox, &QDoubleSpinBox::setEnabled);
     topPLayout->addWidget(overrideTopPCheckbox);
     topPLayout->addWidget(topPSpinBox);
-    QLabel *topPLabel = new QLabel("Top-P:");
-    topPLabel->setToolTip("Nucleus sampling threshold");
+    QLabel *topPLabel = new QLabel(tr("Top-P:"));
+    topPLabel->setToolTip(tr("Nucleus sampling threshold"));
     paramsLayout->addRow(topPLabel, topPLayout);
 
     // Top-K
     QHBoxLayout *topKLayout = new QHBoxLayout();
-    overrideTopKCheckbox = new QCheckBox("Override", this);
+    overrideTopKCheckbox = new QCheckBox(tr("Override"), this);
     topKSpinBox = new QSpinBox(this);
     topKSpinBox->setRange(1, 100);
     topKSpinBox->setSingleStep(5);
@@ -181,13 +181,13 @@ void SettingsDialog::createUI() {
     connect(overrideTopKCheckbox, &QCheckBox::toggled, topKSpinBox, &QSpinBox::setEnabled);
     topKLayout->addWidget(overrideTopKCheckbox);
     topKLayout->addWidget(topKSpinBox);
-    QLabel *topKLabel = new QLabel("Top-K:");
-    topKLabel->setToolTip("Number of highest probability tokens to consider");
+    QLabel *topKLabel = new QLabel(tr("Top-K:"));
+    topKLabel->setToolTip(tr("Number of highest probability tokens to consider"));
     paramsLayout->addRow(topKLabel, topKLayout);
 
     // Max Tokens
     QHBoxLayout *maxTokensLayout = new QHBoxLayout();
-    overrideMaxTokensCheckbox = new QCheckBox("Override", this);
+    overrideMaxTokensCheckbox = new QCheckBox(tr("Override"), this);
     maxTokensSpinBox = new QSpinBox(this);
     maxTokensSpinBox->setRange(128, 8192);
     maxTokensSpinBox->setSingleStep(128);
@@ -196,18 +196,18 @@ void SettingsDialog::createUI() {
     connect(overrideMaxTokensCheckbox, &QCheckBox::toggled, maxTokensSpinBox, &QSpinBox::setEnabled);
     maxTokensLayout->addWidget(overrideMaxTokensCheckbox);
     maxTokensLayout->addWidget(maxTokensSpinBox);
-    QLabel *maxTokensLabel = new QLabel("Max Tokens:");
-    maxTokensLabel->setToolTip("Maximum length of generated response");
+    QLabel *maxTokensLabel = new QLabel(tr("Max Tokens:"));
+    maxTokensLabel->setToolTip(tr("Maximum length of generated response"));
     paramsLayout->addRow(maxTokensLabel, maxTokensLayout);
 
     mainLayout->addWidget(paramsGroup);
 
     // RAG Settings Group
-    QGroupBox *ragGroup = new QGroupBox("RAG (Retrieval-Augmented Generation) Settings", this);
+    QGroupBox *ragGroup = new QGroupBox(tr("RAG (Retrieval-Augmented Generation) Settings"), this);
     QVBoxLayout *ragGroupLayout = new QVBoxLayout(ragGroup);
 
-    ragEnabledCheckbox = new QCheckBox("Enable RAG (disabled by default)", this);
-    ragEnabledCheckbox->setToolTip("Enable retrieval-augmented generation to inject document context into conversations");
+    ragEnabledCheckbox = new QCheckBox(tr("Enable RAG (disabled by default)"), this);
+    ragEnabledCheckbox->setToolTip(tr("Enable retrieval-augmented generation to inject document context into conversations"));
     ragGroupLayout->addWidget(ragEnabledCheckbox);
 
     QFormLayout *ragLayout = new QFormLayout();
@@ -218,43 +218,43 @@ void SettingsDialog::createUI() {
     ragEmbeddingModelCombo = new QComboBox(this);
     ragEmbeddingModelCombo->setEditable(true);
     ragEmbeddingModelCombo->setPlaceholderText("nomic-embed-text");
-    ragEmbeddingModelCombo->setToolTip("Ollama model to use for generating embeddings");
+    ragEmbeddingModelCombo->setToolTip(tr("Ollama model to use for generating embeddings"));
     embeddingModelLayout->addWidget(ragEmbeddingModelCombo, 1);
 
-    refreshEmbeddingModelsButton = new QPushButton("Refresh", this);
-    refreshEmbeddingModelsButton->setToolTip("Fetch available embedding models from Ollama server");
+    refreshEmbeddingModelsButton = new QPushButton(tr("Refresh"), this);
+    refreshEmbeddingModelsButton->setToolTip(tr("Fetch available embedding models from Ollama server"));
     connect(refreshEmbeddingModelsButton, &QPushButton::clicked, this, &SettingsDialog::refreshEmbeddingModels);
     embeddingModelLayout->addWidget(refreshEmbeddingModelsButton);
 
-    ragLayout->addRow("Embedding Model:", embeddingModelLayout);
+    ragLayout->addRow(tr("Embedding Model:"), embeddingModelLayout);
 
     ragChunkSizeSpinBox = new QSpinBox(this);
     ragChunkSizeSpinBox->setRange(128, 2048);
     ragChunkSizeSpinBox->setSingleStep(128);
     ragChunkSizeSpinBox->setSuffix(" chars");
-    ragChunkSizeSpinBox->setToolTip("Size of text chunks for document processing");
-    ragLayout->addRow("Chunk Size:", ragChunkSizeSpinBox);
+    ragChunkSizeSpinBox->setToolTip(tr("Size of text chunks for document processing"));
+    ragLayout->addRow(tr("Chunk Size:"), ragChunkSizeSpinBox);
 
     ragChunkOverlapSpinBox = new QSpinBox(this);
     ragChunkOverlapSpinBox->setRange(0, 512);
     ragChunkOverlapSpinBox->setSingleStep(10);
     ragChunkOverlapSpinBox->setSuffix(" chars");
-    ragChunkOverlapSpinBox->setToolTip("Overlap between consecutive chunks for better context");
-    ragLayout->addRow("Chunk Overlap:", ragChunkOverlapSpinBox);
+    ragChunkOverlapSpinBox->setToolTip(tr("Overlap between consecutive chunks for better context"));
+    ragLayout->addRow(tr("Chunk Overlap:"), ragChunkOverlapSpinBox);
 
     ragTopKSpinBox = new QSpinBox(this);
     ragTopKSpinBox->setRange(1, 10);
     ragTopKSpinBox->setSingleStep(1);
-    ragTopKSpinBox->setToolTip("Number of most relevant chunks to retrieve for context");
-    ragLayout->addRow("Top K Results:", ragTopKSpinBox);
+    ragTopKSpinBox->setToolTip(tr("Number of most relevant chunks to retrieve for context"));
+    ragLayout->addRow(tr("Top K Results:"), ragTopKSpinBox);
 
     mainLayout->addWidget(ragGroup);
 
     // MCP Servers Group
-    QGroupBox *mcpGroup = new QGroupBox("MCP (Model Context Protocol) Servers", this);
+    QGroupBox *mcpGroup = new QGroupBox(tr("MCP (Model Context Protocol) Servers"), this);
     QVBoxLayout *mcpGroupLayout = new QVBoxLayout(mcpGroup);
 
-    QLabel *mcpLabel = new QLabel("<i>Configure external MCP servers that provide additional tools via HTTP or SSE.</i>", this);
+    QLabel *mcpLabel = new QLabel(tr("<i>Configure external MCP servers that provide additional tools via HTTP or SSE.</i>"), this);
     mcpLabel->setWordWrap(true);
     mcpGroupLayout->addWidget(mcpLabel);
 
@@ -263,32 +263,32 @@ void SettingsDialog::createUI() {
 
     mcpServerList = new QListWidget(this);
     mcpServerList->setMaximumHeight(150);
-    mcpServerList->setToolTip("List of configured MCP servers");
+    mcpServerList->setToolTip(tr("List of configured MCP servers"));
     connect(mcpServerList, &QListWidget::itemSelectionChanged, this, &SettingsDialog::onMcpServerSelectionChanged);
     mcpListLayout->addWidget(mcpServerList, 1);
 
     // Buttons column
     QVBoxLayout *mcpButtonsLayout = new QVBoxLayout();
 
-    addMcpServerButton = new QPushButton("Add", this);
-    addMcpServerButton->setToolTip("Add a new MCP server");
+    addMcpServerButton = new QPushButton(tr("Add"), this);
+    addMcpServerButton->setToolTip(tr("Add a new MCP server"));
     connect(addMcpServerButton, &QPushButton::clicked, this, &SettingsDialog::addMcpServer);
     mcpButtonsLayout->addWidget(addMcpServerButton);
 
-    editMcpServerButton = new QPushButton("Edit", this);
-    editMcpServerButton->setToolTip("Edit selected MCP server");
+    editMcpServerButton = new QPushButton(tr("Edit"), this);
+    editMcpServerButton->setToolTip(tr("Edit selected MCP server"));
     editMcpServerButton->setEnabled(false);
     connect(editMcpServerButton, &QPushButton::clicked, this, &SettingsDialog::editMcpServer);
     mcpButtonsLayout->addWidget(editMcpServerButton);
 
-    deleteMcpServerButton = new QPushButton("Delete", this);
-    deleteMcpServerButton->setToolTip("Delete selected MCP server");
+    deleteMcpServerButton = new QPushButton(tr("Delete"), this);
+    deleteMcpServerButton->setToolTip(tr("Delete selected MCP server"));
     deleteMcpServerButton->setEnabled(false);
     connect(deleteMcpServerButton, &QPushButton::clicked, this, &SettingsDialog::deleteMcpServer);
     mcpButtonsLayout->addWidget(deleteMcpServerButton);
 
-    toggleMcpServerButton = new QPushButton("Toggle Enabled", this);
-    toggleMcpServerButton->setToolTip("Enable or disable selected MCP server");
+    toggleMcpServerButton = new QPushButton(tr("Toggle Enabled"), this);
+    toggleMcpServerButton->setToolTip(tr("Enable or disable selected MCP server"));
     toggleMcpServerButton->setEnabled(false);
     connect(toggleMcpServerButton, &QPushButton::clicked, this, &SettingsDialog::toggleMcpServerEnabled);
     mcpButtonsLayout->addWidget(toggleMcpServerButton);
@@ -304,15 +304,15 @@ void SettingsDialog::createUI() {
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
 
-    resetButton = new QPushButton("Reset to Defaults", this);
+    resetButton = new QPushButton(tr("Reset to Defaults"), this);
     connect(resetButton, &QPushButton::clicked, this, &SettingsDialog::resetToDefaults);
     buttonLayout->addWidget(resetButton);
 
-    cancelButton = new QPushButton("Cancel", this);
+    cancelButton = new QPushButton(tr("Cancel"), this);
     connect(cancelButton, &QPushButton::clicked, this, &SettingsDialog::cancelSettings);
     buttonLayout->addWidget(cancelButton);
 
-    saveButton = new QPushButton("Save", this);
+    saveButton = new QPushButton(tr("Save"), this);
     saveButton->setDefault(true);
     connect(saveButton, &QPushButton::clicked, this, &SettingsDialog::saveSettings);
     buttonLayout->addWidget(saveButton);
@@ -403,7 +403,7 @@ void SettingsDialog::saveSettings() {
         accept();  // Close dialog without showing success message
     } else {
         LOG_ERROR("Failed to save settings");
-        QMessageBox::warning(this, "Settings", "Failed to save settings to file.");
+        QMessageBox::warning(this, tr("Settings"), tr("Failed to save settings to file."));
         // Dialog stays open on error so user can retry
     }
 }
@@ -415,8 +415,8 @@ void SettingsDialog::cancelSettings() {
 
 void SettingsDialog::resetToDefaults() {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Reset Settings",
-                                   "Reset all settings to default values?",
+    reply = QMessageBox::question(this, tr("Reset Settings"),
+                                   tr("Reset all settings to default values?"),
                                    QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
@@ -439,9 +439,9 @@ void SettingsDialog::refreshModels() {
     } else if (backend == "Lemonade") {
         fetchLemonadeModels(false);
     } else {
-        QMessageBox::information(this, "Info",
-            "Model refresh is only available for Ollama and Lemonade backends.\n"
-            "For OpenAI, please enter your model name manually (e.g., gpt-4, gpt-3.5-turbo).");
+        QMessageBox::information(this, tr("Info"),
+            tr("Model refresh is only available for Ollama and Lemonade backends.\n"
+            "For OpenAI, please enter your model name manually (e.g., gpt-4, gpt-3.5-turbo)."));
     }
 }
 
@@ -450,7 +450,7 @@ void SettingsDialog::fetchOllamaModels(bool silentMode) {
 
     refreshModelsButton->setEnabled(false);
     if (!silentMode) {
-        refreshModelsButton->setText("Loading...");
+        refreshModelsButton->setText(tr("Loading..."));
     }
 
     // Extract base URL from API URL (http://host:port/api/generate -> http://host:port/api/tags)
@@ -487,7 +487,7 @@ void SettingsDialog::fetchLemonadeModels(bool silentMode) {
 
     refreshModelsButton->setEnabled(false);
     if (!silentMode) {
-        refreshModelsButton->setText("Loading...");
+        refreshModelsButton->setText(tr("Loading..."));
     }
 
     // Lemonade API endpoint for listing models: http://localhost:8000/api/v1/models
@@ -530,7 +530,7 @@ void SettingsDialog::handleModelsResponse(QNetworkReply *reply) {
 
     // Re-enable refresh button
     refreshModelsButton->setEnabled(true);
-    refreshModelsButton->setText("Refresh");
+    refreshModelsButton->setText(tr("Refresh"));
 
     if (reply->error() != QNetworkReply::NoError) {
         QString errorMsg = QString("Failed to fetch models: %1").arg(reply->errorString());
@@ -538,9 +538,9 @@ void SettingsDialog::handleModelsResponse(QNetworkReply *reply) {
 
         // Only show error popup if this was a manual refresh
         if (!silentRefresh) {
-            QMessageBox::warning(this, "Network Error",
-                QString("Could not connect to Ollama server:\n%1\n\n"
-                        "Make sure Ollama is running and the API URL is correct.").arg(reply->errorString()));
+            QMessageBox::warning(this, tr("Network Error"),
+                QString(tr("Could not connect to Ollama server:\n%1\n\n"
+                        "Make sure Ollama is running and the API URL is correct.")).arg(reply->errorString()));
         } else {
             LOG_INFO("Auto-refresh failed silently - Ollama server may not be available");
         }
@@ -555,29 +555,29 @@ void SettingsDialog::handleModelsResponse(QNetworkReply *reply) {
     if (parseError.error != QJsonParseError::NoError) {
         QString errorMsg = QString("Failed to parse response: %1").arg(parseError.errorString());
         LOG_ERROR(errorMsg);
-        QMessageBox::warning(this, "Parse Error", "Invalid response from Ollama server.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("Invalid response from Ollama server."));
         return;
     }
 
     if (!doc.isObject()) {
         LOG_ERROR("Response is not a JSON object");
-        QMessageBox::warning(this, "Parse Error", "Unexpected response format from Ollama server.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("Unexpected response format from Ollama server."));
         return;
     }
 
     QJsonObject jsonObj = doc.object();
     if (!jsonObj.contains("models")) {
         LOG_ERROR("Response does not contain 'models' field");
-        QMessageBox::warning(this, "Parse Error", "No models found in response.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("No models found in response."));
         return;
     }
 
     QJsonArray modelsArray = jsonObj["models"].toArray();
     if (modelsArray.isEmpty()) {
         if (!silentRefresh) {
-            QMessageBox::information(this, "No Models",
-                "No models found on the Ollama server.\n"
-                "You can pull models using: ollama pull <model-name>");
+            QMessageBox::information(this, tr("No Models"),
+                tr("No models found on the Ollama server.\n"
+                "You can pull models using: ollama pull <model-name>"));
         }
         return;
     }
@@ -611,8 +611,8 @@ void SettingsDialog::handleModelsResponse(QNetworkReply *reply) {
 
     // Only show success popup for manual refresh
     if (!silentRefresh) {
-        QMessageBox::information(this, "Success",
-            QString("Found %1 model(s) on the Ollama server.").arg(modelsArray.size()));
+        QMessageBox::information(this, tr("Success"),
+            tr("Found %1 model(s) on the Ollama server.").arg(modelsArray.size()));
     }
 }
 
@@ -621,7 +621,7 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
 
     // Re-enable refresh button
     refreshModelsButton->setEnabled(true);
-    refreshModelsButton->setText("Refresh");
+    refreshModelsButton->setText(tr("Refresh"));
 
     if (reply->error() != QNetworkReply::NoError) {
         QString errorMsg = QString("Failed to fetch models: %1").arg(reply->errorString());
@@ -629,9 +629,9 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
 
         // Only show error popup if this was a manual refresh
         if (!silentRefresh) {
-            QMessageBox::warning(this, "Network Error",
-                QString("Could not connect to Lemonade server:\n%1\n\n"
-                        "Make sure Lemonade is running and the API URL is correct.").arg(reply->errorString()));
+            QMessageBox::warning(this, tr("Network Error"),
+                QString(tr("Could not connect to Lemonade server:\n%1\n\n"
+                        "Make sure Lemonade is running and the API URL is correct.")).arg(reply->errorString()));
         } else {
             LOG_INFO("Auto-refresh failed silently - Lemonade server may not be available");
         }
@@ -647,7 +647,7 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
         QString errorMsg = QString("Failed to parse response: %1").arg(parseError.errorString());
         LOG_ERROR(errorMsg);
         if (!silentRefresh) {
-            QMessageBox::warning(this, "Parse Error", "Invalid response from Lemonade server.");
+            QMessageBox::warning(this, tr("Parse Error"), tr("Invalid response from Lemonade server."));
         }
         return;
     }
@@ -655,7 +655,7 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
     if (!doc.isObject()) {
         LOG_ERROR("Response is not a JSON object");
         if (!silentRefresh) {
-            QMessageBox::warning(this, "Parse Error", "Unexpected response format from Lemonade server.");
+            QMessageBox::warning(this, tr("Parse Error"), tr("Unexpected response format from Lemonade server."));
         }
         return;
     }
@@ -666,7 +666,7 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
     if (modelsArray.isEmpty()) {
         LOG_WARNING("No models returned from Lemonade server");
         if (!silentRefresh) {
-            QMessageBox::information(this, "No Models", "No models found on Lemonade server.");
+            QMessageBox::information(this, tr("No Models"), tr("No models found on Lemonade server."));
         }
         return;
     }
@@ -697,8 +697,8 @@ void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
 
     // Only show success popup for manual refresh
     if (!silentRefresh) {
-        QMessageBox::information(this, "Success",
-            QString("Found %1 model(s) on the Lemonade server.").arg(modelsArray.size()));
+        QMessageBox::information(this, tr("Success"),
+            tr("Found %1 model(s) on the Lemonade server.").arg(modelsArray.size()));
     }
 }
 
@@ -711,8 +711,8 @@ void SettingsDialog::onBackendChanged(const QString &backend) {
     
     refreshModelsButton->setEnabled(canRefresh);
     refreshModelsButton->setToolTip(canRefresh ?
-        QString("Fetch available models from %1 server").arg(backend) :
-        "Model refresh is only available for Ollama and Lemonade backends");
+        tr("Fetch available models from %1 server").arg(backend) :
+        tr("Model refresh is only available for Ollama and Lemonade backends"));
     
     // Update API URL placeholder based on backend
     if (isLemonade) {
@@ -730,7 +730,7 @@ void SettingsDialog::refreshEmbeddingModels() {
     }
 
     refreshEmbeddingModelsButton->setEnabled(false);
-    refreshEmbeddingModelsButton->setText("Loading...");
+    refreshEmbeddingModelsButton->setText(tr("Loading..."));
 
     // Extract base URL from API URL
     QString apiUrl = apiUrlEdit->text();
@@ -767,14 +767,14 @@ void SettingsDialog::handleEmbeddingModelsResponse(QNetworkReply *reply) {
 
     // Re-enable refresh button
     refreshEmbeddingModelsButton->setEnabled(true);
-    refreshEmbeddingModelsButton->setText("Refresh");
+    refreshEmbeddingModelsButton->setText(tr("Refresh"));
 
     if (reply->error() != QNetworkReply::NoError) {
         QString errorMsg = QString("Failed to fetch embedding models: %1").arg(reply->errorString());
         LOG_WARNING(errorMsg);
-        QMessageBox::warning(this, "Network Error",
-            QString("Could not connect to Ollama server:\n%1\n\n"
-                    "Make sure Ollama is running and the API URL is correct.").arg(reply->errorString()));
+    QMessageBox::warning(this, tr("Network Error"),
+        QString(tr("Could not connect to Ollama server:\n%1\n\n"
+                "Make sure Ollama is running and the API URL is correct.")).arg(reply->errorString()));
         return;
     }
 
@@ -786,20 +786,20 @@ void SettingsDialog::handleEmbeddingModelsResponse(QNetworkReply *reply) {
     if (parseError.error != QJsonParseError::NoError) {
         QString errorMsg = QString("Failed to parse response: %1").arg(parseError.errorString());
         LOG_ERROR(errorMsg);
-        QMessageBox::warning(this, "Parse Error", "Invalid response from Ollama server.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("Invalid response from Ollama server."));
         return;
     }
 
     if (!doc.isObject()) {
         LOG_ERROR("Response is not a JSON object");
-        QMessageBox::warning(this, "Parse Error", "Unexpected response format from Ollama server.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("Unexpected response format from Ollama server."));
         return;
     }
 
     QJsonObject jsonObj = doc.object();
     if (!jsonObj.contains("models")) {
         LOG_ERROR("Response does not contain 'models' field");
-        QMessageBox::warning(this, "Parse Error", "No models found in response.");
+        QMessageBox::warning(this, tr("Parse Error"), tr("No models found in response."));
         return;
     }
 
@@ -854,8 +854,8 @@ void SettingsDialog::handleEmbeddingModelsResponse(QNetworkReply *reply) {
     }
 
     LOG_INFO(QString("Loaded %1 models for embedding selection").arg(modelsArray.size()));
-    QMessageBox::information(this, "Success",
-        QString("Found %1 model(s) on the Ollama server.\n"
+    QMessageBox::information(this, tr("Success"),
+        tr("Found %1 model(s) on the Ollama server.\n"
                 "Embedding-related models are shown first.").arg(modelsArray.size()));
 }
 
@@ -889,15 +889,15 @@ void SettingsDialog::updateMcpServerList() {
 void SettingsDialog::addMcpServer() {
     // Simple dialog for now - will create proper dialog later
     bool ok;
-    QString name = QInputDialog::getText(this, "Add MCP Server",
-                                         "Server Name:", QLineEdit::Normal,
+    QString name = QInputDialog::getText(this, tr("Add MCP Server"),
+                                         tr("Server Name:"), QLineEdit::Normal,
                                          "", &ok);
     if (!ok || name.isEmpty()) {
         return;
     }
 
-    QString url = QInputDialog::getText(this, "Add MCP Server",
-                                       "Server URL:", QLineEdit::Normal,
+    QString url = QInputDialog::getText(this, tr("Add MCP Server"),
+                                       tr("Server URL:"), QLineEdit::Normal,
                                         "http://localhost:8080", &ok);
     if (!ok || url.isEmpty()) {
         return;
@@ -905,8 +905,8 @@ void SettingsDialog::addMcpServer() {
 
     QStringList types;
     types << "http" << "sse";
-    QString type = QInputDialog::getItem(this, "Add MCP Server",
-                                         "Connection Type:", types,
+    QString type = QInputDialog::getItem(this, tr("Add MCP Server"),
+                                         tr("Connection Type:"), types,
                                          0, false, &ok);
     if (!ok) {
         return;
@@ -937,15 +937,15 @@ void SettingsDialog::editMcpServer() {
     QJsonObject server = mcpServers[currentRow].toObject();
 
     bool ok;
-    QString name = QInputDialog::getText(this, "Edit MCP Server",
-                                         "Server Name:", QLineEdit::Normal,
+    QString name = QInputDialog::getText(this, tr("Edit MCP Server"),
+                                         tr("Server Name:"), QLineEdit::Normal,
                                          server["name"].toString(), &ok);
     if (!ok) {
         return;
     }
 
-    QString url = QInputDialog::getText(this, "Edit MCP Server",
-                                       "Server URL:", QLineEdit::Normal,
+    QString url = QInputDialog::getText(this, tr("Edit MCP Server"),
+                                       tr("Server URL:"), QLineEdit::Normal,
                                         server["url"].toString(), &ok);
     if (!ok) {
         return;
@@ -954,8 +954,8 @@ void SettingsDialog::editMcpServer() {
     QStringList types;
     types << "http" << "sse";
     int currentType = types.indexOf(server["type"].toString());
-    QString type = QInputDialog::getItem(this, "Edit MCP Server",
-                                         "Connection Type:", types,
+    QString type = QInputDialog::getItem(this, tr("Edit MCP Server"),
+                                         tr("Connection Type:"), types,
                                          currentType, false, &ok);
     if (!ok) {
         return;
@@ -986,8 +986,8 @@ void SettingsDialog::deleteMcpServer() {
     QString name = server["name"].toString();
 
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Delete MCP Server",
-                                   QString("Delete server '%1'?").arg(name),
+    reply = QMessageBox::question(this, tr("Delete MCP Server"),
+                                   tr("Delete server '%1'?").arg(name),
                                    QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
