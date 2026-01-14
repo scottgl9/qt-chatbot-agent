@@ -2,6 +2,34 @@
 
 All notable changes to qt-chatbot-agent will be documented in this file.
 
+# Changelog
+
+All notable changes to qt-chatbot-agent will be documented in this file.
+
+## [Unreleased] - 2025-01-14
+
+### Added
+
+#### Lemonade Backend Support (2025-01-14)
+- **Lemonade AI Server Integration**
+  - Added support for Lemonade server (https://lemonade-server.ai/)
+  - OpenAI-compatible API endpoint: `http://localhost:8000/api/v1/chat/completions`
+  - Model listing via `/api/v1/models` endpoint
+  - Auto-refresh models on Settings dialog open
+  - Support for GPU/NPU accelerated models (GGUF, ONNX, FLM formats)
+  - Particularly optimized for AMD Ryzen AI hardware (Strix Halo)
+
+- **Multi-Backend Model Fetching**
+  - Backend dropdown now includes: Ollama, Lemonade, and OpenAI
+  - Automatic API URL placeholder updates based on selected backend
+  - Model refresh button enabled for both Ollama and Lemonade
+  - Silent auto-refresh prevents popup spam on dialog open
+
+- **Documentation Updates**
+  - Updated README.md with Lemonade backend information
+  - Added API endpoint examples for all three backends
+  - Updated prerequisites to include Lemonade as an option
+
 ## [Unreleased] - 2025-10-10
 
 ### Added

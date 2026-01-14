@@ -4,7 +4,7 @@ A Qt5-based chatbot application with advanced features including:
 - **Model Context Protocol (MCP)** support for tool calling
 - **RAG (Retrieval-Augmented Generation)** for document-based Q&A
 - **Streaming responses** from LLM backends
-- **Multiple backend support**: Ollama, OpenAI
+- **Multiple backend support**: Ollama, Lemonade, OpenAI
 - **Rich UI** with markdown rendering and syntax highlighting
 
 ## Features
@@ -47,7 +47,7 @@ A Qt5-based chatbot application with advanced features including:
 - Qt5 (5.15+)
 - CMake (3.10+)
 - C++17 compiler
-- Ollama server (for LLM and RAG embeddings)
+- LLM server (Ollama, Lemonade, or OpenAI)
 
 ### Build from Source
 
@@ -92,7 +92,7 @@ sudo apt-get install -f
 
 1. **Configure Backend**:
    - File → Settings
-   - Select backend (Ollama/OpenAI)
+   - Select backend (Ollama/Lemonade/OpenAI)
    - Configure API URL and model
 
 2. **Enable RAG (Optional)**:
@@ -118,6 +118,7 @@ sudo apt-get install -f
 - **[Testing Guide](docs/TESTING_GUIDE.md)** - Testing and quality assurance
 
 ### Feature Documentation
+- **[Lemonade Backend](docs/lemonade-backend.md)** - Lemonade AI server setup and configuration
 - **[Conversation Management](docs/conversation-management.md)** - Save, load, and export conversations
 - **[Markdown Formatting](docs/markdown-formatting-guide.md)** - Markdown rendering features
 - **[Model Selection](docs/model-selection-feature.md)** - Backend and model configuration
@@ -143,9 +144,12 @@ sudo apt-get install -f
 Configuration is stored at: `~/.qtbot/config.json`
 
 ### Key Settings
-- **Backend**: ollama, openai
-- **Model**: Model name (e.g., llama3, gpt-4)
+- **Backend**: ollama, lemonade, openai
+- **Model**: Model name (e.g., llama3, Gemma-3-4b-it-GGUF, gpt-4)
 - **API URL**: Backend endpoint
+  - Ollama: `http://localhost:11434/api/generate`
+  - Lemonade: `http://localhost:8000/api/v1/chat/completions`
+  - OpenAI: `https://api.openai.com/v1/chat/completions`
 - **RAG**: Enable/disable, embedding model, chunk settings
 - **LLM Parameters**: Temperature, top-p, top-k, context window
 

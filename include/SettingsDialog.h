@@ -41,6 +41,7 @@ private slots:
     void refreshModels();
     void refreshEmbeddingModels();
     void handleModelsResponse(QNetworkReply *reply);
+    void handleLemonadeModelsResponse(QNetworkReply *reply);
     void handleEmbeddingModelsResponse(QNetworkReply *reply);
     void onBackendChanged(const QString &backend);
 
@@ -55,6 +56,7 @@ private:
     void createUI();
     void loadCurrentSettings();
     void fetchOllamaModels(bool silentMode = false);
+    void fetchLemonadeModels(bool silentMode = false);
     void updateMcpServerList();
 
     // Backend settings

@@ -39,8 +39,11 @@ SettingsDialog::SettingsDialog(QWidget *parent)
                 this, [this](QNetworkReply *reply) {
                     // Route to appropriate handler based on request attribute
                     QVariant attr = reply->request().attribute(QNetworkRequest::User);
-                    if (attr.toString() == "embedding_models") {
+                    QString attrStr = attr.toString();
+                    if (attrStr == "embedding_models") {
                         handleEmbeddingModelsResponse(reply);
+                    } else if (attrStr == "lemonade_models") {
+                        handleLemonadeModelsResponse(reply);
                     } else {
                         handleModelsResponse(reply);
                     }
@@ -66,6 +69,7 @@ void SettingsDialog::createUI() {
 
     backendCombo = new QComboBox(this);
     backendCombo->addItem("Ollama");
+    backendCombo->addItem("Lemonade");
     backendCombo->addItem("OpenAI");
     connect(backendCombo, &QComboBox::currentTextChanged, this, &SettingsDialog::onBackendChanged);
     backendLayout->addRow("Backend:", backendCombo);
@@ -429,11 +433,14 @@ void SettingsDialog::refreshModels() {
         return;
     }
 
-    if (backendCombo->currentText() == "Ollama") {
+    QString backend = backendCombo->currentText();
+    if (backend == "Ollama") {
         fetchOllamaModels(false); // Show success message for manual refresh
+    } else if (backend == "Lemonade") {
+        fetchLemonadeModels(false);
     } else {
         QMessageBox::information(this, "Info",
-            "Model refresh is only available for Ollama backend.\n"
+            "Model refresh is only available for Ollama and Lemonade backends.\n"
             "For OpenAI, please enter your model name manually (e.g., gpt-4, gpt-3.5-turbo).");
     }
 }
@@ -471,6 +478,49 @@ void SettingsDialog::fetchOllamaModels(bool silentMode) {
     QUrl url(baseUrl);
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    networkManager->get(request);
+}
+
+void SettingsDialog::fetchLemonadeModels(bool silentMode) {
+    silentRefresh = silentMode;
+
+    refreshModelsButton->setEnabled(false);
+    if (!silentMode) {
+        refreshModelsButton->setText("Loading...");
+    }
+
+    // Lemonade API endpoint for listing models: http://localhost:8000/api/v1/models
+    QString apiUrl = apiUrlEdit->text();
+    QString baseUrl = apiUrl;
+
+    // Remove /api/v1/chat/completions if present and add /api/v1/models
+    if (baseUrl.contains("/api/v1/chat/completions")) {
+        int pos = baseUrl.indexOf("/api/v1/chat/completions");
+        baseUrl = baseUrl.left(pos);
+    } else if (baseUrl.contains("/chat/completions")) {
+        int pos = baseUrl.indexOf("/chat/completions");
+        baseUrl = baseUrl.left(pos);
+    } else if (baseUrl.contains("/completions")) {
+        int pos = baseUrl.indexOf("/completions");
+        baseUrl = baseUrl.left(pos);
+    }
+
+    if (!baseUrl.endsWith("/api/v1")) {
+        if (baseUrl.endsWith("/")) {
+            baseUrl += "api/v1";
+        } else {
+            baseUrl += "/api/v1";
+        }
+    }
+    baseUrl += "/models";
+
+    LOG_INFO(QString("Fetching models from Lemonade: %1 (silent: %2)").arg(baseUrl).arg(silentMode ? "true" : "false"));
+
+    QUrl url(baseUrl);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setAttribute(QNetworkRequest::User, "lemonade_models");  // Tag as Lemonade request
 
     networkManager->get(request);
 }
@@ -566,13 +616,110 @@ void SettingsDialog::handleModelsResponse(QNetworkReply *reply) {
     }
 }
 
+void SettingsDialog::handleLemonadeModelsResponse(QNetworkReply *reply) {
+    reply->deleteLater();
+
+    // Re-enable refresh button
+    refreshModelsButton->setEnabled(true);
+    refreshModelsButton->setText("Refresh");
+
+    if (reply->error() != QNetworkReply::NoError) {
+        QString errorMsg = QString("Failed to fetch models: %1").arg(reply->errorString());
+        LOG_WARNING(errorMsg);
+
+        // Only show error popup if this was a manual refresh
+        if (!silentRefresh) {
+            QMessageBox::warning(this, "Network Error",
+                QString("Could not connect to Lemonade server:\n%1\n\n"
+                        "Make sure Lemonade is running and the API URL is correct.").arg(reply->errorString()));
+        } else {
+            LOG_INFO("Auto-refresh failed silently - Lemonade server may not be available");
+        }
+        return;
+    }
+
+    // Parse JSON response (OpenAI-compatible format)
+    QByteArray responseData = reply->readAll();
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(responseData, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError) {
+        QString errorMsg = QString("Failed to parse response: %1").arg(parseError.errorString());
+        LOG_ERROR(errorMsg);
+        if (!silentRefresh) {
+            QMessageBox::warning(this, "Parse Error", "Invalid response from Lemonade server.");
+        }
+        return;
+    }
+
+    if (!doc.isObject()) {
+        LOG_ERROR("Response is not a JSON object");
+        if (!silentRefresh) {
+            QMessageBox::warning(this, "Parse Error", "Unexpected response format from Lemonade server.");
+        }
+        return;
+    }
+
+    QJsonObject root = doc.object();
+    QJsonArray modelsArray = root["data"].toArray();
+
+    if (modelsArray.isEmpty()) {
+        LOG_WARNING("No models returned from Lemonade server");
+        if (!silentRefresh) {
+            QMessageBox::information(this, "No Models", "No models found on Lemonade server.");
+        }
+        return;
+    }
+
+    // Save current selection
+    QString currentModel = modelCombo->currentText();
+
+    // Clear and populate model combo box
+    modelCombo->clear();
+
+    for (const QJsonValue &value : modelsArray) {
+        QJsonObject modelObj = value.toObject();
+        QString modelId = modelObj["id"].toString();
+        if (!modelId.isEmpty()) {
+            modelCombo->addItem(modelId);
+        }
+    }
+
+    // Restore current model if it exists in the list
+    int index = modelCombo->findText(currentModel);
+    if (index >= 0) {
+        modelCombo->setCurrentIndex(index);
+    } else if (!currentModel.isEmpty()) {
+        modelCombo->setEditText(currentModel);
+    }
+
+    LOG_INFO(QString("Loaded %1 models from Lemonade").arg(modelsArray.size()));
+
+    // Only show success popup for manual refresh
+    if (!silentRefresh) {
+        QMessageBox::information(this, "Success",
+            QString("Found %1 model(s) on the Lemonade server.").arg(modelsArray.size()));
+    }
+}
+
 void SettingsDialog::onBackendChanged(const QString &backend) {
     // Enable/disable refresh button based on backend
-    bool isOllama = (backend.toLower() == "ollama");
-    refreshModelsButton->setEnabled(isOllama);
-    refreshModelsButton->setToolTip(isOllama ?
-        "Fetch available models from Ollama server" :
-        "Model refresh is only available for Ollama backend");
+    QString backendLower = backend.toLower();
+    bool isOllama = (backendLower == "ollama");
+    bool isLemonade = (backendLower == "lemonade");
+    bool canRefresh = (isOllama || isLemonade);
+    
+    refreshModelsButton->setEnabled(canRefresh);
+    refreshModelsButton->setToolTip(canRefresh ?
+        QString("Fetch available models from %1 server").arg(backend) :
+        "Model refresh is only available for Ollama and Lemonade backends");
+    
+    // Update API URL placeholder based on backend
+    if (isLemonade) {
+        apiUrlEdit->setPlaceholderText("http://localhost:8000/api/v1/chat/completions");
+    } else if (isOllama) {
+        apiUrlEdit->setPlaceholderText("http://localhost:11434/api/generate");
+    }
 }
 
 void SettingsDialog::refreshEmbeddingModels() {
