@@ -30,14 +30,14 @@ ToolUIManager::ToolUIManager(MCPHandler *mcpHandler, QWidget *parent)
 
 void ToolUIManager::showToolsDialog() {
     QDialog *dialog = new QDialog(parentWidget);
-    dialog->setWindowTitle("Manage Tools");
+    dialog->setWindowTitle(tr("Manage Tools"));
     dialog->setMinimumWidth(750);
     dialog->setMinimumHeight(550);
 
     QVBoxLayout *layout = new QVBoxLayout(dialog);
 
     // Header
-    QLabel *headerLabel = new QLabel("Tool Management", dialog);
+    QLabel *headerLabel = new QLabel(tr("Tool Management"), dialog);
     QFont headerFont = headerLabel->font();
     headerFont.setPointSize(14);
     headerFont.setBold(true);
@@ -45,7 +45,7 @@ void ToolUIManager::showToolsDialog() {
     layout->addWidget(headerLabel);
 
     // Info label
-    QLabel *infoLabel = new QLabel("Enable or disable individual tools. Disabled tools will not be available to the LLM.", dialog);
+    QLabel *infoLabel = new QLabel(tr("Enable or disable individual tools. Disabled tools will not be available to the LLM."), dialog);
     infoLabel->setStyleSheet("color: #666; margin-bottom: 10px;");
     infoLabel->setWordWrap(true);
     layout->addWidget(infoLabel);
@@ -55,15 +55,15 @@ void ToolUIManager::showToolsDialog() {
     int enabledCount = getEnabledToolCount();
     int disabledCount = getDisabledToolCount();
     
-    QLabel *countLabel = new QLabel(QString("Tools: %1 enabled, %2 disabled, %3 total")
+    QLabel *countLabel = new QLabel(tr("Tools: %1 enabled, %2 disabled, %3 total")
         .arg(enabledCount).arg(disabledCount).arg(toolCount), dialog);
     countLabel->setStyleSheet("color: #666; margin-bottom: 10px; font-weight: bold;");
     layout->addWidget(countLabel);
 
     // Quick actions
     QHBoxLayout *quickActionsLayout = new QHBoxLayout();
-    QPushButton *enableAllBtn = new QPushButton("Enable All", dialog);
-    QPushButton *disableAllBtn = new QPushButton("Disable All", dialog);
+    QPushButton *enableAllBtn = new QPushButton(tr("Enable All"), dialog);
+    QPushButton *disableAllBtn = new QPushButton(tr("Disable All"), dialog);
     quickActionsLayout->addWidget(enableAllBtn);
     quickActionsLayout->addWidget(disableAllBtn);
     quickActionsLayout->addStretch();
@@ -82,7 +82,7 @@ void ToolUIManager::showToolsDialog() {
     QList<QCheckBox*> toolCheckboxes;
 
     if (toolCount == 0) {
-        QLabel *noToolsLabel = new QLabel("No MCP tools are currently registered.", scrollWidget);
+        QLabel *noToolsLabel = new QLabel(tr("No MCP tools are currently registered."), scrollWidget);
         noToolsLabel->setAlignment(Qt::AlignCenter);
         noToolsLabel->setStyleSheet("color: #999; padding: 40px; font-size: 12pt;");
         scrollLayout->addWidget(noToolsLabel);
@@ -125,7 +125,7 @@ void ToolUIManager::showToolsDialog() {
                 int total = getTotalToolCount();
                 int enabled = getEnabledToolCount();
                 int disabled = getDisabledToolCount();
-                countLabel->setText(QString("Tools: %1 enabled, %2 disabled, %3 total")
+                countLabel->setText(tr("Tools: %1 enabled, %2 disabled, %3 total")
                     .arg(enabled).arg(disabled).arg(total));
                 emit toolCountChanged(enabled, disabled, total);
             });
@@ -136,14 +136,14 @@ void ToolUIManager::showToolsDialog() {
             toolLayout->addLayout(titleLayout);
 
             // Description
-            QLabel *descLabel = new QLabel(QString("<b>Description:</b> %1").arg(toolDesc), toolBox);
+            QLabel *descLabel = new QLabel(tr("<b>Description:</b> %1").arg(toolDesc), toolBox);
             descLabel->setWordWrap(true);
             descLabel->setTextFormat(Qt::RichText);
             descLabel->setStyleSheet("margin-left: 20px;");
             toolLayout->addWidget(descLabel);
 
             // Parameters section (collapsed by default)
-            QLabel *paramsHeaderLabel = new QLabel("<b>Parameters:</b>", toolBox);
+            QLabel *paramsHeaderLabel = new QLabel(tr("<b>Parameters:</b>"), toolBox);
             paramsHeaderLabel->setStyleSheet("margin-left: 20px;");
             toolLayout->addWidget(paramsHeaderLabel);
 
@@ -158,14 +158,14 @@ void ToolUIManager::showToolsDialog() {
 
             // Type info
             if (tool.contains("url") && !tool["url"].toString().isEmpty()) {
-                QLabel *typeLabel = new QLabel(QString("Type: <span style='color: #2196F3;'>Networked</span> | URL: <code>%1</code>")
+                QLabel *typeLabel = new QLabel(tr("Type: <span style='color: #2196F3;'>Networked</span> | URL: <code>%1</code>")
                     .arg(tool["url"].toString()), toolBox);
                 typeLabel->setTextFormat(Qt::RichText);
                 typeLabel->setWordWrap(true);
                 typeLabel->setStyleSheet("color: #666; font-size: 9pt; margin-top: 5px; margin-left: 20px;");
                 toolLayout->addWidget(typeLabel);
             } else {
-                QLabel *typeLabel = new QLabel("Type: <span style='color: #4CAF50;'>Local</span>", toolBox);
+                QLabel *typeLabel = new QLabel(tr("Type: <span style='color: #4CAF50;'>Local</span>"), toolBox);
                 typeLabel->setTextFormat(Qt::RichText);
                 typeLabel->setStyleSheet("color: #666; font-size: 9pt; margin-top: 5px; margin-left: 20px;");
                 toolLayout->addWidget(typeLabel);
@@ -196,7 +196,7 @@ void ToolUIManager::showToolsDialog() {
     // Close button
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
     buttonLayout->addWidget(closeButton);
     layout->addLayout(buttonLayout);

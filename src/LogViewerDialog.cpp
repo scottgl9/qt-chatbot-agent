@@ -27,7 +27,7 @@ LogViewerDialog::LogViewerDialog(QWidget *parent)
     , currentFilter(QtDebugMsg)  // Show all messages by default
     , autoScroll(true)
     , m_isDestroying(false) {
-    setWindowTitle("Log Viewer");
+    setWindowTitle(tr("Log Viewer"));
     setMinimumSize(800, 600);
 
     createUI();
@@ -63,31 +63,31 @@ void LogViewerDialog::createUI() {
     // Header with controls
     QHBoxLayout *headerLayout = new QHBoxLayout();
 
-    QLabel *filterLabel = new QLabel("Filter:", this);
+    QLabel *filterLabel = new QLabel(tr("Filter:"), this);
     headerLayout->addWidget(filterLabel);
 
     filterCombo = new QComboBox(this);
-    filterCombo->addItem("All Messages", QtDebugMsg);
-    filterCombo->addItem("Info and Above", QtInfoMsg);
-    filterCombo->addItem("Warnings and Above", QtWarningMsg);
-    filterCombo->addItem("Errors Only", QtCriticalMsg);
+    filterCombo->addItem(tr("All Messages"), QtDebugMsg);
+    filterCombo->addItem(tr("Info and Above"), QtInfoMsg);
+    filterCombo->addItem(tr("Warnings and Above"), QtWarningMsg);
+    filterCombo->addItem(tr("Errors Only"), QtCriticalMsg);
     connect(filterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &LogViewerDialog::onFilterChanged);
     headerLayout->addWidget(filterCombo);
 
     headerLayout->addStretch();
 
-    autoScrollCheckbox = new QCheckBox("Auto-scroll", this);
+    autoScrollCheckbox = new QCheckBox(tr("Auto-scroll"), this);
     autoScrollCheckbox->setChecked(true);
     connect(autoScrollCheckbox, &QCheckBox::toggled,
             this, &LogViewerDialog::onAutoScrollChanged);
     headerLayout->addWidget(autoScrollCheckbox);
 
-    clearButton = new QPushButton("Clear", this);
+    clearButton = new QPushButton(tr("Clear"), this);
     connect(clearButton, &QPushButton::clicked, this, &LogViewerDialog::clearLogs);
     headerLayout->addWidget(clearButton);
 
-    saveButton = new QPushButton("Save to File...", this);
+    saveButton = new QPushButton(tr("Save to File..."), this);
     connect(saveButton, &QPushButton::clicked, this, &LogViewerDialog::saveLogsToFile);
     headerLayout->addWidget(saveButton);
 
@@ -111,7 +111,7 @@ void LogViewerDialog::createUI() {
     // Close button
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
-    QPushButton *closeButton = new QPushButton("Close", this);
+    QPushButton *closeButton = new QPushButton(tr("Close"), this);
     connect(closeButton, &QPushButton::clicked, this, &QDialog::accept);
     buttonLayout->addWidget(closeButton);
     mainLayout->addLayout(buttonLayout);
@@ -204,10 +204,10 @@ void LogViewerDialog::clearLogs() {
 
 void LogViewerDialog::saveLogsToFile() {
     QString fileName = QFileDialog::getSaveFileName(this,
-        "Save Logs",
+        tr("Save Logs"),
         QDir::homePath() + "/qtbot_logs_" +
             QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss") + ".txt",
-        "Text Files (*.txt);;All Files (*)");
+        tr("Text Files (*.txt);;All Files (*)"));
 
     if (fileName.isEmpty()) {
         return;
@@ -215,8 +215,8 @@ void LogViewerDialog::saveLogsToFile() {
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, "Save Failed",
-            QString("Could not open file for writing: %1").arg(fileName));
+        QMessageBox::warning(this, tr("Save Failed"),
+            tr("Could not open file for writing: %1").arg(fileName));
         return;
     }
 
@@ -224,8 +224,8 @@ void LogViewerDialog::saveLogsToFile() {
     out << logTextEdit->toPlainText();
     file.close();
 
-    QMessageBox::information(this, "Saved",
-        QString("Logs saved to: %1").arg(fileName));
+    QMessageBox::information(this, tr("Saved"),
+        tr("Logs saved to: %1").arg(fileName));
 }
 
 void LogViewerDialog::onFilterChanged(int index) {
@@ -244,12 +244,12 @@ void LogViewerDialog::loadExistingLogs() {
     QFile logFile(logPath);
 
     if (!logFile.exists()) {
-        logTextEdit->append("<span style='color: #888;'>No log file found. Logs will appear here as they are generated.</span>");
+        logTextEdit->append(tr("<span style='color: #888;'>No log file found. Logs will appear here as they are generated.</span>"));
         return;
     }
 
     if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        logTextEdit->append(QString("<span style='color: #F48771;'>Failed to open log file: %1</span>").arg(logPath.toHtmlEscaped()));
+        logTextEdit->append(tr("<span style='color: #F48771;'>Failed to open log file: %1</span>").arg(logPath.toHtmlEscaped()));
         return;
     }
 
@@ -273,13 +273,13 @@ void LogViewerDialog::loadExistingLogs() {
 
     // Display the logs
     if (recentLines.isEmpty()) {
-        logTextEdit->append("<span style='color: #888;'>Log file is empty.</span>");
+        logTextEdit->append(tr("<span style='color: #888;'>Log file is empty.</span>"));
         return;
     }
 
     // Show truncation notice if we hit the limit
     if (recentLines.size() == maxLines) {
-        logTextEdit->append(QString("<span style='color: #DCDCAA;'>Showing last %1 log entries (file may contain more)</span>").arg(maxLines));
+        logTextEdit->append(tr("<span style='color: #DCDCAA;'>Showing last %1 log entries (file may contain more)</span>").arg(maxLines));
     }
 
     // Parse and display logs with proper formatting

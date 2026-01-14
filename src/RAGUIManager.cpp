@@ -30,9 +30,9 @@ RAGUIManager::RAGUIManager(RAGEngine *ragEngine, QWidget *parent)
 
 void RAGUIManager::ingestDocument() {
     QString fileName = QFileDialog::getOpenFileName(parentWidget,
-        "Ingest Document for RAG",
+        tr("Ingest Document for RAG"),
         QDir::homePath(),
-        "Documents (*.txt *.md *.markdown *.pdf *.docx *.doc);;All Files (*)");
+        tr("Documents (*.txt *.md *.markdown *.pdf *.docx *.doc);;All Files (*)"));
 
     if (fileName.isEmpty()) {
         return;
@@ -57,7 +57,7 @@ void RAGUIManager::ingestDocument() {
 
 void RAGUIManager::ingestDirectory() {
     QString dirPath = QFileDialog::getExistingDirectory(parentWidget,
-        "Ingest Directory for RAG",
+        tr("Ingest Directory for RAG"),
         QDir::homePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
@@ -84,20 +84,20 @@ void RAGUIManager::ingestDirectory() {
 
 void RAGUIManager::viewDocuments() {
     if (!ragEngine) {
-        QMessageBox::information(parentWidget, "RAG Documents", "RAG Engine not initialized.");
+        QMessageBox::information(parentWidget, tr("RAG Documents"), tr("RAG Engine not initialized."));
         return;
     }
 
     // Create dialog
     QDialog *dialog = new QDialog(parentWidget);
-    dialog->setWindowTitle("RAG Documents");
+    dialog->setWindowTitle(tr("RAG Documents"));
     dialog->setMinimumWidth(600);
     dialog->setMinimumHeight(400);
 
     QVBoxLayout *layout = new QVBoxLayout(dialog);
 
     // Header
-    QLabel *headerLabel = new QLabel("Ingested Documents", dialog);
+    QLabel *headerLabel = new QLabel(tr("Ingested Documents"), dialog);
     QFont headerFont = headerLabel->font();
     headerFont.setPointSize(14);
     headerFont.setBold(true);
@@ -109,7 +109,7 @@ void RAGUIManager::viewDocuments() {
     int chunkCount = ragEngine->getChunkCount();
     int embeddingDim = ragEngine->getEmbeddingDimension();
 
-    QString statsText = QString("Total Documents: %1 | Total Chunks: %2 | Embedding Dimension: %3")
+    QString statsText = tr("Total Documents: %1 | Total Chunks: %2 | Embedding Dimension: %3")
         .arg(docCount).arg(chunkCount).arg(embeddingDim);
     QLabel *statsLabel = new QLabel(statsText, dialog);
     statsLabel->setStyleSheet("color: #666; margin-bottom: 10px;");
@@ -120,17 +120,17 @@ void RAGUIManager::viewDocuments() {
     infoText->setReadOnly(true);
 
     if (docCount == 0) {
-        infoText->setPlainText("No documents have been ingested yet.\n\n"
-            "Use RAG → Ingest Document or RAG → Ingest Directory to add documents.");
+        infoText->setPlainText(tr("No documents have been ingested yet.\n\n"
+            "Use RAG → Ingest Document or RAG → Ingest Directory to add documents."));
     } else {
-        QString info = QString("RAG Engine Status:\n\n")
-            + QString("- Documents loaded: %1\n").arg(docCount)
-            + QString("- Text chunks: %1\n").arg(chunkCount)
-            + QString("- Embedding model: %1\n").arg(Config::instance().getRagEmbeddingModel())
-            + QString("- Chunk size: %1 chars\n").arg(Config::instance().getRagChunkSize())
-            + QString("- Chunk overlap: %1 chars\n").arg(Config::instance().getRagChunkOverlap())
-            + QString("- Top K retrieval: %1\n").arg(Config::instance().getRagTopK())
-            + QString("\nRAG is currently %1.").arg(Config::instance().getRagEnabled() ? "ENABLED" : "DISABLED");
+        QString info = tr("RAG Engine Status:\n\n")
+            + tr("- Documents loaded: %1\n").arg(docCount)
+            + tr("- Text chunks: %1\n").arg(chunkCount)
+            + tr("- Embedding model: %1\n").arg(Config::instance().getRagEmbeddingModel())
+            + tr("- Chunk size: %1 chars\n").arg(Config::instance().getRagChunkSize())
+            + tr("- Chunk overlap: %1 chars\n").arg(Config::instance().getRagChunkOverlap())
+            + tr("- Top K retrieval: %1\n").arg(Config::instance().getRagTopK())
+            + tr("\nRAG is currently %1.").arg(Config::instance().getRagEnabled() ? tr("ENABLED") : tr("DISABLED"));
 
         infoText->setPlainText(info);
     }
@@ -140,7 +140,7 @@ void RAGUIManager::viewDocuments() {
     // Close button
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
-    QPushButton *closeButton = new QPushButton("Close", dialog);
+    QPushButton *closeButton = new QPushButton(tr("Close"), dialog);
     connect(closeButton, &QPushButton::clicked, dialog, &QDialog::accept);
     buttonLayout->addWidget(closeButton);
     layout->addLayout(buttonLayout);
@@ -156,13 +156,13 @@ void RAGUIManager::clearDocuments() {
     }
 
     if (ragEngine->getDocumentCount() == 0) {
-        QMessageBox::information(parentWidget, "Clear Documents", "No documents to clear.");
+        QMessageBox::information(parentWidget, tr("Clear Documents"), tr("No documents to clear."));
         return;
     }
 
     QMessageBox::StandardButton reply = QMessageBox::question(parentWidget,
-        "Clear Documents",
-        QString("Clear all %1 ingested documents (%2 chunks)?")
+        tr("Clear Documents"),
+        tr("Clear all %1 ingested documents (%2 chunks)?")
             .arg(ragEngine->getDocumentCount())
             .arg(ragEngine->getChunkCount()),
         QMessageBox::Yes | QMessageBox::No);

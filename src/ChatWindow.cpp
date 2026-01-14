@@ -73,7 +73,7 @@ ChatWindow::ChatWindow(QWidget *parent)
     chatDisplay = new QTextEdit(this);
     chatDisplay->setReadOnly(true);
     chatDisplay->setAcceptRichText(true);
-    chatDisplay->setPlaceholderText("Chat messages will appear here...");
+    chatDisplay->setPlaceholderText(tr("Chat messages will appear here..."));
     chatDisplay->setStyleSheet(
         "QTextEdit {"
         "  background-color: #ffffff;"
@@ -117,7 +117,7 @@ ChatWindow::ChatWindow(QWidget *parent)
     inputLayout->setSpacing(8);
 
     inputField = new QLineEdit(this);
-    inputField->setPlaceholderText("Type your message here...");
+    inputField->setPlaceholderText(tr("Type your message here..."));
     inputField->setStyleSheet(
         "QLineEdit {"
         "  background-color: white;"
@@ -132,7 +132,7 @@ ChatWindow::ChatWindow(QWidget *parent)
         "}"
     );
 
-    sendButton = new QPushButton("Send", this);
+    sendButton = new QPushButton(tr("Send"), this);
     sendButton->setStyleSheet(
         "QPushButton {"
         "  background-color: #2196F3;"
@@ -193,7 +193,7 @@ ChatWindow::ChatWindow(QWidget *parent)
             for (const QString &name : toolNames) {
                 wrappedNames << QString("`%1`").arg(name);
             }
-            messageRenderer->appendMessage("System", QString("Available tools: %1").arg(wrappedNames.join(", ")));
+            messageRenderer->appendMessage("System", tr("Available tools: %1").arg(wrappedNames.join(", ")));
         }
     });
 
@@ -209,17 +209,17 @@ ChatWindow::ChatWindow(QWidget *parent)
     // Initialize RAG UI manager
     ragUIManager = new RAGUIManager(ragEngine, this);
     connect(ragUIManager, &RAGUIManager::documentIngested, this, [this](const QString &filename, int chunkCount) {
-        messageRenderer->appendMessage("System", QString("Document ingested successfully: %1 (total chunks: %2)")
+        messageRenderer->appendMessage("System", tr("Document ingested successfully: %1 (total chunks: %2)")
             .arg(filename).arg(chunkCount));
     });
     connect(ragUIManager, &RAGUIManager::directoryIngested, this, [this](const QString & /*path*/, int chunkCount) {
-        messageRenderer->appendMessage("System", QString("Directory ingested successfully. Total chunks: %1").arg(chunkCount));
+        messageRenderer->appendMessage("System", tr("Directory ingested successfully. Total chunks: %1").arg(chunkCount));
     });
     connect(ragUIManager, &RAGUIManager::ingestionFailed, this, [this](const QString &error) {
         messageRenderer->appendMessage("System", error);
     });
     connect(ragUIManager, &RAGUIManager::documentsCleared, this, [this]() {
-        messageRenderer->appendMessage("System", "All RAG documents cleared.");
+        messageRenderer->appendMessage("System", tr("All RAG documents cleared."));
     });
     connect(ragUIManager, &RAGUIManager::statusUpdated, this, &ChatWindow::updateStatusBar);
 
@@ -229,11 +229,11 @@ ChatWindow::ChatWindow(QWidget *parent)
     updateStatusBar();
 
     // Add welcome message
-    messageRenderer->appendMessage("System", QString("Welcome to %1!").arg(APP_NAME));
-    messageRenderer->appendMessage("System", "This is a Qt5 chatbot application with MCP and RAG integration.");
+    messageRenderer->appendMessage("System", tr("Welcome to %1!").arg(APP_NAME));
+    messageRenderer->appendMessage("System", tr("This is a Qt5 chatbot application with MCP and RAG integration."));
     QString backend = Config::instance().getBackend();
     QString model = Config::instance().getModel();
-    messageRenderer->appendMessage("System", QString("Backend: %1 | Model: %2").arg(backend, model));
+    messageRenderer->appendMessage("System", tr("Backend: %1 | Model: %2").arg(backend, model));
     
     // Tool list will be shown after MCP server discovery completes
 }
@@ -352,7 +352,7 @@ void ChatWindow::handleLLMError(const QString &error) {
     // Hide thinking indicator
     hideThinkingIndicator();
 
-    messageRenderer->appendMessage("System", QString("Error: %1").arg(error));
+    messageRenderer->appendMessage("System", tr("Error: %1").arg(error));
 
     // Re-enable input
     inputField->setEnabled(true);
@@ -363,12 +363,12 @@ void ChatWindow::handleLLMError(const QString &error) {
 void ChatWindow::updateThinkingAnimation() {
     thinkingDots = (thinkingDots + 1) % 4;
     QString dots = QString(".").repeated(thinkingDots);
-    thinkingLabel->setText(QString("Thinking%1").arg(dots));
+    thinkingLabel->setText(tr("Thinking%1").arg(dots));
 }
 
 void ChatWindow::showThinkingIndicator() {
     thinkingDots = 0;
-    thinkingLabel->setText("Thinking");
+    thinkingLabel->setText(tr("Thinking"));
     thinkingLabel->show();
     thinkingTimer->start(500); // Update every 500ms
 }
@@ -380,7 +380,7 @@ void ChatWindow::hideThinkingIndicator() {
 
 void ChatWindow::handleRetryAttempt(int attempt, int maxRetries) {
     // Display retry notification
-    messageRenderer->appendMessage("System", QString("Connection failed. Retrying... (attempt %1/%2)")
+    messageRenderer->appendMessage("System", tr("Connection failed. Retrying... (attempt %1/%2)")
                   .arg(attempt).arg(maxRetries));
 }
 
@@ -576,8 +576,8 @@ void ChatWindow::showToolsDialog() {
 
 void ChatWindow::clearConversation() {
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Clear Conversation",
-                                   "Are you sure you want to clear the conversation?",
+    reply = QMessageBox::question(this, tr("Clear Conversation"),
+                                   tr("Are you sure you want to clear the conversation?"),
                                    QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
@@ -585,15 +585,15 @@ void ChatWindow::clearConversation() {
         conversationManager->setModified(false);
         conversationManager->clearCurrentFile();
         LOG_INFO("Conversation cleared");
-        messageRenderer->appendMessage("System", "Conversation cleared.");
+        messageRenderer->appendMessage("System", tr("Conversation cleared."));
     }
 }
 
 void ChatWindow::findInConversation() {
     bool ok;
     QString searchText = QInputDialog::getText(this,
-        "Find in Conversation",
-        "Enter search text:",
+        tr("Find in Conversation"),
+        tr("Enter search text:"),
         QLineEdit::Normal,
         lastSearchText,
         &ok);
@@ -623,8 +623,8 @@ void ChatWindow::findInConversation() {
             chatDisplay->ensureCursorVisible();
             LOG_INFO(QString("Found text from beginning: %1").arg(searchText));
         } else {
-            QMessageBox::information(this, "Find",
-                QString("Text not found: %1").arg(searchText));
+            QMessageBox::information(this, tr("Find"),
+                tr("Text not found: %1").arg(searchText));
             LOG_INFO(QString("Text not found: %1").arg(searchText));
         }
     }
@@ -635,7 +635,7 @@ void ChatWindow::copyConversation() {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(plainText);
     LOG_INFO("Conversation copied to clipboard");
-    messageRenderer->appendMessage("System", "Conversation copied to clipboard!");
+    messageRenderer->appendMessage("System", tr("Conversation copied to clipboard!"));
 }
 
 void ChatWindow::newConversation() {
@@ -903,115 +903,115 @@ void ChatWindow::createMenuBar() {
     setMenuBar(menuBar);
 
     // File menu
-    QMenu *fileMenu = menuBar->addMenu("&File");
+    QMenu *fileMenu = menuBar->addMenu(tr("&File"));
 
-    QAction *newAction = new QAction("&New Conversation", this);
+    QAction *newAction = new QAction(tr("&New Conversation"), this);
     newAction->setShortcut(QKeySequence::New);
     connect(newAction, &QAction::triggered, this, &ChatWindow::newConversation);
     fileMenu->addAction(newAction);
 
-    QAction *saveAction = new QAction("&Save Conversation...", this);
+    QAction *saveAction = new QAction(tr("&Save Conversation..."), this);
     saveAction->setShortcut(QKeySequence::Save);
     connect(saveAction, &QAction::triggered, this, &ChatWindow::saveConversation);
     fileMenu->addAction(saveAction);
 
-    QAction *loadAction = new QAction("&Load Conversation...", this);
+    QAction *loadAction = new QAction(tr("&Load Conversation..."), this);
     loadAction->setShortcut(QKeySequence::Open);
     connect(loadAction, &QAction::triggered, this, &ChatWindow::loadConversation);
     fileMenu->addAction(loadAction);
 
     fileMenu->addSeparator();
 
-    QAction *exportAction = new QAction("&Export Conversation...", this);
+    QAction *exportAction = new QAction(tr("&Export Conversation..."), this);
     exportAction->setShortcut(QKeySequence("Ctrl+E"));
     connect(exportAction, &QAction::triggered, this, &ChatWindow::exportConversation);
     fileMenu->addAction(exportAction);
 
     fileMenu->addSeparator();
 
-    QAction *settingsAction = new QAction("&Settings...", this);
+    QAction *settingsAction = new QAction(tr("&Settings..."), this);
     settingsAction->setShortcut(QKeySequence::Preferences);
     connect(settingsAction, &QAction::triggered, this, &ChatWindow::openSettings);
     fileMenu->addAction(settingsAction);
 
     fileMenu->addSeparator();
 
-    QAction *quitAction = new QAction("&Quit", this);
+    QAction *quitAction = new QAction(tr("&Quit"), this);
     quitAction->setShortcut(QKeySequence::Quit);
     connect(quitAction, &QAction::triggered, this, &QWidget::close);
     fileMenu->addAction(quitAction);
 
     // Edit menu
-    QMenu *editMenu = menuBar->addMenu("&Edit");
+    QMenu *editMenu = menuBar->addMenu(tr("&Edit"));
 
-    QAction *findAction = new QAction("&Find in Conversation...", this);
+    QAction *findAction = new QAction(tr("&Find in Conversation..."), this);
     findAction->setShortcut(QKeySequence::Find);
     connect(findAction, &QAction::triggered, this, &ChatWindow::findInConversation);
     editMenu->addAction(findAction);
 
     editMenu->addSeparator();
 
-    QAction *copyAction = new QAction("&Copy Conversation", this);
+    QAction *copyAction = new QAction(tr("&Copy Conversation"), this);
     copyAction->setShortcut(QKeySequence("Ctrl+Shift+C"));
     connect(copyAction, &QAction::triggered, this, &ChatWindow::copyConversation);
     editMenu->addAction(copyAction);
 
     editMenu->addSeparator();
 
-    QAction *clearAction = new QAction("C&lear Conversation", this);
+    QAction *clearAction = new QAction(tr("C&lear Conversation"), this);
     clearAction->setShortcut(QKeySequence("Ctrl+L"));
     connect(clearAction, &QAction::triggered, this, &ChatWindow::clearConversation);
     editMenu->addAction(clearAction);
 
     // View menu
-    QMenu *viewMenu = menuBar->addMenu("&View");
+    QMenu *viewMenu = menuBar->addMenu(tr("&View"));
 
     // Theme submenu
-    QMenu *themeMenu = viewMenu->addMenu("&Theme");
+    QMenu *themeMenu = viewMenu->addMenu(tr("&Theme"));
 
-    QAction *lightThemeAction = new QAction("&Light", this);
+    QAction *lightThemeAction = new QAction(tr("&Light"), this);
     connect(lightThemeAction, &QAction::triggered, this, &ChatWindow::toggleLightTheme);
     themeMenu->addAction(lightThemeAction);
 
-    QAction *darkThemeAction = new QAction("&Dark", this);
+    QAction *darkThemeAction = new QAction(tr("&Dark"), this);
     connect(darkThemeAction, &QAction::triggered, this, &ChatWindow::toggleDarkTheme);
     themeMenu->addAction(darkThemeAction);
 
     viewMenu->addSeparator();
 
-    QAction *manageToolsAction = new QAction("&Manage Tools...", this);
+    QAction *manageToolsAction = new QAction(tr("&Manage Tools..."), this);
     manageToolsAction->setShortcut(QKeySequence("Ctrl+T"));
     connect(manageToolsAction, &QAction::triggered, this, &ChatWindow::showToolsDialog);
     viewMenu->addAction(manageToolsAction);
 
-    QAction *viewLogsAction = new QAction("&Log Viewer...", this);
+    QAction *viewLogsAction = new QAction(tr("&Log Viewer..."), this);
     viewLogsAction->setShortcut(QKeySequence("Ctrl+Shift+L"));
     connect(viewLogsAction, &QAction::triggered, this, &ChatWindow::showLogViewer);
     viewMenu->addAction(viewLogsAction);
 
     // RAG menu
-    QMenu *ragMenu = menuBar->addMenu("&RAG");
+    QMenu *ragMenu = menuBar->addMenu(tr("&RAG"));
 
-    QAction *ingestDocAction = new QAction("Ingest &Document...", this);
+    QAction *ingestDocAction = new QAction(tr("Ingest &Document..."), this);
     ingestDocAction->setShortcut(QKeySequence("Ctrl+D"));
     connect(ingestDocAction, &QAction::triggered, this, &ChatWindow::ingestDocument);
     ragMenu->addAction(ingestDocAction);
 
-    QAction *ingestDirAction = new QAction("Ingest D&irectory...", this);
+    QAction *ingestDirAction = new QAction(tr("Ingest D&irectory..."), this);
     ingestDirAction->setShortcut(QKeySequence("Ctrl+Shift+D"));
     connect(ingestDirAction, &QAction::triggered, this, &ChatWindow::ingestDirectory);
     ragMenu->addAction(ingestDirAction);
 
     ragMenu->addSeparator();
 
-    QAction *viewDocsAction = new QAction("&View Documents...", this);
+    QAction *viewDocsAction = new QAction(tr("&View Documents..."), this);
     viewDocsAction->setShortcut(QKeySequence("Ctrl+Shift+V"));
     connect(viewDocsAction, &QAction::triggered, this, &ChatWindow::viewDocuments);
     ragMenu->addAction(viewDocsAction);
 
     ragMenu->addSeparator();
 
-    QAction *clearDocsAction = new QAction("&Clear All Documents", this);
+    QAction *clearDocsAction = new QAction(tr("&Clear All Documents"), this);
     connect(clearDocsAction, &QAction::triggered, this, &ChatWindow::clearDocuments);
     ragMenu->addAction(clearDocsAction);
 }
